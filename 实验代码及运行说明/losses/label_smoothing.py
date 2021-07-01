@@ -17,5 +17,4 @@ class LabelSmoothingCrossEntropy(nn.Module):
             loss = -log_preds.sum(dim=-1)
             if self.reduction=='mean':
                 loss = loss.mean()
-        return loss*self.eps/c + (1-self.eps) * F.nll_loss(log_preds, target, reduction=self.reduction,
-                                                           ignore_index=self.ignore_index)
+        #### return ? ####################

@@ -15,8 +15,5 @@ class FocalLoss(nn.Module):
         input: [N, C]
         target: [N, ]
         """
-        logpt = F.log_softmax(input, dim=1)
-        pt = torch.exp(logpt)
-        logpt = (1-pt)**self.gamma * logpt
-        loss = F.nll_loss(logpt, target, self.weight,ignore_index=self.ignore_index)
+        ########从这里开始补全###########
         return loss

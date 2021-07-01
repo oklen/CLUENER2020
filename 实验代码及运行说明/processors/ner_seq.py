@@ -106,6 +106,7 @@ def convert_examples_to_features(examples,label_list,max_seq_length,tokenizer,
         # For classification tasks, the first vector (corresponding to [CLS]) is
         # used as as the "sentence vector". Note that this only makes sense because
         # the entire model is fine-tuned.
+
         tokens += [sep_token]
         label_ids += [label_map['O']]
         segment_ids = [sequence_a_segment_id] * len(tokens)
@@ -141,6 +142,7 @@ def convert_examples_to_features(examples,label_list,max_seq_length,tokenizer,
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
         assert len(label_ids) == max_seq_length
+
         if ex_index < 5:
             logger.info("*** Example ***")
             logger.info("guid: %s", example.guid)
