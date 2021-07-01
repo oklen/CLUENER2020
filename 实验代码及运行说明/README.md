@@ -19,7 +19,7 @@ python tools/download_clue_data.py --data_dir=./datasets --tasks=cluener
 
 直接执行对应shell脚本，如：
 ```shell
-sh scripts/run_ner_crf.sh
+CUDA_VISIBLE_DEVICES=0 sh scripts/run_ner_crf.sh
 ```
 4. 预测
 
