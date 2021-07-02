@@ -274,7 +274,7 @@ class CRF(nn.Module):
         # for every possible next tag
 
         ##########################################################################################
-        # 从这里开始补全，以下用 #!代表需要补全的行
+        # 从这里开始补全,这里为了降低难度，用 #!代表需要补全的行
         for i in range(1, seq_length):
             # Broadcast viterbi score for every possible next tag
             # shape: (batch_size, num_tags, 1)
@@ -361,6 +361,6 @@ class CRF(nn.Module):
         # for every possible next tag
         
 
-        ####################仿照上个函数完成这里的补全######################################
+        ####################仿照上个函数完成这里的补全,该函数应当返还N个最好解码结果######################################
         #...
         return torch.where(mask.unsqueeze(-1), best_tags_arr, oor_tag).permute(2, 1, 0)
