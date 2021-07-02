@@ -272,30 +272,33 @@ class CRF(nn.Module):
 
         # Viterbi algorithm recursive case: we compute the score of the best tag sequence
         # for every possible next tag
+
+        ##########################################################################################
+        # 从这里开始补全，以下用 #!代表需要补全的行
         for i in range(1, seq_length):
             # Broadcast viterbi score for every possible next tag
             # shape: (batch_size, num_tags, 1)
-            broadcast_score = score.unsqueeze(2)
+            #!
 
             # Broadcast emission score for every possible current tag
             # shape: (batch_size, 1, num_tags)
-            broadcast_emission = emissions[i].unsqueeze(1)
+            #!
 
             # Compute the score tensor of size (batch_size, num_tags, num_tags) where
             # for each sample, entry at row i and column j stores the score of the best
             # tag sequence so far that ends with transitioning from tag i to tag j and emitting
             # shape: (batch_size, num_tags, num_tags)
-            next_score = broadcast_score + self.transitions + broadcast_emission
+            #!
 
             # Find the maximum score over all possible current tag
             # shape: (batch_size, num_tags)
-            next_score, indices = next_score.max(dim=1)
+            #!
 
             # Set score to the next score if this timestep is valid (mask == 1)
             # and save the index that produces the next score
             # shape: (batch_size, num_tags)
-            score = torch.where(mask[i].unsqueeze(-1), next_score, score)
-            indices = torch.where(mask[i].unsqueeze(-1), indices, oor_idx)
+            #! score = 
+            #! indices = 
             history_idx[i - 1] = indices
 
         # End transition score
@@ -326,6 +329,7 @@ class CRF(nn.Module):
                               mask: torch.ByteTensor,
                               nbest: int,
                               pad_tag: Optional[int] = None) -> List[List[List[int]]]:
+        
         # emissions: (seq_length, batch_size, num_tags)
         # mask: (seq_length, batch_size)
         # return: (nbest, batch_size, seq_length)
@@ -355,57 +359,8 @@ class CRF(nn.Module):
 
         # Viterbi algorithm recursive case: we compute the score of the best tag sequence
         # for every possible next tag
-        for i in range(1, seq_length):
-            if i == 1:
-                broadcast_score = score.unsqueeze(-1)
-                broadcast_emission = emissions[i].unsqueeze(1)
-                # shape: (batch_size, num_tags, num_tags)
-                next_score = broadcast_score + self.transitions + broadcast_emission
-            else:
-                broadcast_score = score.unsqueeze(-1)
-                broadcast_emission = emissions[i].unsqueeze(1).unsqueeze(2)
-                # shape: (batch_size, num_tags, nbest, num_tags)
-                next_score = broadcast_score + self.transitions.unsqueeze(1) + broadcast_emission
+        
 
-            # Find the top `nbest` maximum score over all possible current tag
-            # shape: (batch_size, nbest, num_tags)
-            next_score, indices = next_score.view(batch_size, -1, self.num_tags).topk(nbest, dim=1)
-
-            if i == 1:
-                score = score.unsqueeze(-1).expand(-1, -1, nbest)
-                indices = indices * nbest
-
-            # convert to shape: (batch_size, num_tags, nbest)
-            next_score = next_score.transpose(2, 1)
-            indices = indices.transpose(2, 1)
-
-            # Set score to the next score if this timestep is valid (mask == 1)
-            # and save the index that produces the next score
-            # shape: (batch_size, num_tags, nbest)
-            score = torch.where(mask[i].unsqueeze(-1).unsqueeze(-1), next_score, score)
-            indices = torch.where(mask[i].unsqueeze(-1).unsqueeze(-1), indices, oor_idx)
-            history_idx[i - 1] = indices
-
-        # End transition score shape: (batch_size, num_tags, nbest)
-        end_score = score + self.end_transitions.unsqueeze(-1)
-        _, end_tag = end_score.view(batch_size, -1).topk(nbest, dim=1)
-
-        # shape: (batch_size,)
-        seq_ends = mask.long().sum(dim=0) - 1
-
-        # insert the best tag at each sequence end (last position with mask == 1)
-        history_idx = history_idx.transpose(1, 0).contiguous()
-        history_idx.scatter_(1, seq_ends.view(-1, 1, 1, 1).expand(-1, 1, self.num_tags, nbest),
-                             end_tag.view(-1, 1, 1, nbest).expand(-1, 1, self.num_tags, nbest))
-        history_idx = history_idx.transpose(1, 0).contiguous()
-
-        # The most probable path for each sequence
-        best_tags_arr = torch.zeros((seq_length, batch_size, nbest),
-                                    dtype=torch.long, device=device)
-        best_tags = torch.arange(nbest, dtype=torch.long, device=device) \
-                         .view(1, -1).expand(batch_size, -1)
-        for idx in range(seq_length - 1, -1, -1):
-            best_tags = torch.gather(history_idx[idx].view(batch_size, -1), 1, best_tags)
-            best_tags_arr[idx] = best_tags.data.view(batch_size, -1) // nbest
-
+        ####################仿照上个函数完成这里的补全######################################
+        #...
         return torch.where(mask.unsqueeze(-1), best_tags_arr, oor_tag).permute(2, 1, 0)
